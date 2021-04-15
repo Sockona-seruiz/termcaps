@@ -86,6 +86,15 @@ char	*ft_strcpy(char *str)
 	return (ret);
 }
 
+void	ft_clear_line(int col)
+{
+	while (col > 0)
+	{
+		write(1, " ", 1);
+		col--;
+	}
+}
+
 int	main(void)
 {
 	char	str[2000];
@@ -94,6 +103,7 @@ int	main(void)
 	struct termios	term;
 	char	*term_name = "xterm-256color";
 	char	*cm_cap = tgetstr("cm", NULL);
+	int		col;
 
 	tcgetattr(0, &term);
 	term.c_lflag &= ~(ECHO);
@@ -102,6 +112,8 @@ int	main(void)
 	tgetent(0, term_name);
 
 	char	*strbackup;
+	char *reset_cmd = tgetstr("me", NULL);
+	col = tgetnum("co");
 
 	strtest = malloc(sizeof(char));
 	strtest[0] = '\0';
@@ -115,14 +127,23 @@ int	main(void)
 			if (!strcmp(str, "\e[A"))
 			{
 				tputs(restore_cursor, 1, ft_putchar);
-				tputs(tigetstr("ed"), 1, ft_putchar);
-				//write (1, strtest, ft_strlen(strtest));
-				write (1, "prev", 4);
+
+				tputs(tigetstr("cr"), 1, ft_putchar);
+				ft_clear_line (col);
+				tputs(tigetstr("cr"), 1, ft_putchar);
+				tputs(tigetstr("ce"), 1, ft_putchar);
+
+				write (1, "prev", 4);//Ecrire la ligne de l'histo
 			}
 			else if (!strcmp(str, "\e[B"))
 			{
+
+				//tputs(reset_cmd, 1, putchar);
 				tputs(restore_cursor, 1, ft_putchar);
-				tputs(tigetstr("ed"), 1, ft_putchar);
+				tputs(tigetstr("cr"), 1, ft_putchar);
+				ft_clear_line (col);
+				tputs(tigetstr("cr"), 1, ft_putchar);
+				tputs(tigetstr("ce"), 1, ft_putchar);
 				write (1, "next", 4);
 			}
 			else if (!strcmp(str, "\177"))// && !strcmp(str, "\177"))
@@ -131,6 +152,7 @@ int	main(void)
 				tputs(cursor_left, 1, ft_putchar);
 				tputs(tigetstr("ed"), 1, ft_putchar);
 				//tputs(tigetstr("ll"), 1, ft_putchar);
+				write(1, "back", 4);
 				//write (1, strtest, ft_strlen(strtest));
 			}
 			else if (!strcmp(str, "S"))
@@ -146,4 +168,5 @@ int	main(void)
 	}
 	write (1, "\n", 1);
 	tputs(save_cursor, 1 ,ft_putchar);
+	tputs(reset_cmd, 1, putchar);
 }
