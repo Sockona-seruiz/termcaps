@@ -19,6 +19,9 @@ int	main(int argc, char const **argv, char const **envp)
 	struct termios	term;
 	char	*term_name = "xterm-256color";
 
+	(void)argc;
+	(void)argv;
+	(void)envp;
 	tcgetattr(0, &term);
 	term.c_lflag &= ~(ECHO);
 	term.c_lflag &= ~(ICANON);
@@ -48,8 +51,13 @@ int	main(int argc, char const **argv, char const **envp)
 				tputs(cursor_left, 1, ft_putchar);
 				tputs(tigetstr("ed"), 1, ft_putchar);
 			}
-			else	write(1, str, l);
+			else
+			{
+				write(1, str, l);
+				//tputs(save_cursor, 1 ,ft_putchar);
+			}
 		}while (strcmp(str,"\n") && strcmp(str, "\4"));
 	}
 	write (1, "\n", 1);
+	tputs(save_cursor, 1 ,ft_putchar);
 }
