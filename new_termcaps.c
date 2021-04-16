@@ -118,7 +118,7 @@ int	main(void)
 
 	strtest = malloc(sizeof(char));
 	strtest[0] = '\0';
-	while (strcmp(str, "\4"))
+	while (42)
 	{
 		tputs(tigetstr("dm"), 1, ft_putchar);
 		do
@@ -143,7 +143,13 @@ int	main(void)
 
 				write (1, "next", 4);
 			}
-			else if (*str == 127)// && !strcmp(str, "\177"))
+			/*
+			else if (!strcmp(str, "\e[D"))
+				tputs(cursor_left, 1, ft_putchar);
+			else if (!strcmp(str, "\e[C"))
+				tputs(cursor_right, 1, ft_putchar);
+			*/
+			else if (*str == 127)
 			{
 				//strtest = ft_remove_last_char(strtest);
 				tputs(cursor_left, 1, ft_putchar);
@@ -152,13 +158,16 @@ int	main(void)
 				//write(1, "back", 4);
 				//write (1, strtest, ft_strlen(strtest));
 			}
-			else if (!strcmp(str, "S"))
-				printf("test = %s", strtest);
 			else if (*str >= 32 && *str <= 126)
 			{
 				//strbackup = ft_strcpy(str);
 				//strtest = ft_strjoin(strtest, str);
-				write(1, str, l);
+				write(1, str, 1);
+			}
+			else if (!strcmp(str, "\4"))
+			{
+				write (1, "", 0);
+				//printf ("Ctrl D\n");
 			}
 			else if (*str == '\n')
 				write (1, "\n", 1);
