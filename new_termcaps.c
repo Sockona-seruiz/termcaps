@@ -128,8 +128,8 @@ int	main(void)
 			{
 
 				tputs(tigetstr("cr"), 1, ft_putchar);
-				ft_clear_line (col);
-				tputs(tigetstr("cr"), 1, ft_putchar);
+				tputs(tigetstr("ed"), 1, ft_putchar);
+				tputs(tigetstr("DC"), 1, ft_putchar);
 				//tputs(tigetstr("ce"), 1, ft_putchar);
 
 				write (1, "prev", 4);//Ecrire la ligne de l'histo
@@ -137,8 +137,10 @@ int	main(void)
 			else if (!strcmp(str, "\e[B"))
 			{
 				tputs(tigetstr("cr"), 1, ft_putchar);
-				ft_clear_line (col);
-				tputs(tigetstr("cr"), 1, ft_putchar);
+				tputs(tigetstr("ed"), 1, ft_putchar);
+				tputs(tigetstr("DC"), 1, ft_putchar);
+				//ft_clear_line (col);
+				//tputs(tigetstr("cr"), 1, ft_putchar);
 				//tputs(tigetstr("ce"), 1, ft_putchar);
 
 				write (1, "next", 4);
