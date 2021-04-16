@@ -108,6 +108,7 @@ int	main(void)
 	tcgetattr(0, &term);
 	term.c_lflag &= ~(ECHO);
 	term.c_lflag &= ~(ICANON);
+
 	tcsetattr(0, TCSANOW, &term);
 	tgetent(0, term_name);
 
@@ -119,51 +120,48 @@ int	main(void)
 	strtest[0] = '\0';
 	while (strcmp(str, "\4"))
 	{
-		tputs(save_cursor, 1, ft_putchar);
 		tputs(tigetstr("dm"), 1, ft_putchar);
 		do
 		{
 			l = read(0, str, 100);
 			if (!strcmp(str, "\e[A"))
 			{
-				tputs(restore_cursor, 1, ft_putchar);
 
 				tputs(tigetstr("cr"), 1, ft_putchar);
 				ft_clear_line (col);
 				tputs(tigetstr("cr"), 1, ft_putchar);
-				tputs(tigetstr("ce"), 1, ft_putchar);
+				//tputs(tigetstr("ce"), 1, ft_putchar);
 
 				write (1, "prev", 4);//Ecrire la ligne de l'histo
 			}
 			else if (!strcmp(str, "\e[B"))
 			{
-
-				//tputs(reset_cmd, 1, putchar);
-				tputs(restore_cursor, 1, ft_putchar);
 				tputs(tigetstr("cr"), 1, ft_putchar);
 				ft_clear_line (col);
 				tputs(tigetstr("cr"), 1, ft_putchar);
-				tputs(tigetstr("ce"), 1, ft_putchar);
+				//tputs(tigetstr("ce"), 1, ft_putchar);
+
 				write (1, "next", 4);
 			}
-			else if (!strcmp(str, "\177"))// && !strcmp(str, "\177"))
+			else if (*str == 127)// && !strcmp(str, "\177"))
 			{
 				//strtest = ft_remove_last_char(strtest);
 				tputs(cursor_left, 1, ft_putchar);
 				tputs(tigetstr("ed"), 1, ft_putchar);
 				//tputs(tigetstr("ll"), 1, ft_putchar);
-				write(1, "back", 4);
+				//write(1, "back", 4);
 				//write (1, strtest, ft_strlen(strtest));
 			}
 			else if (!strcmp(str, "S"))
 				printf("test = %s", strtest);
-			else
+			else if (*str >= 32 && *str <= 126)
 			{
 				//strbackup = ft_strcpy(str);
 				//strtest = ft_strjoin(strtest, str);
 				write(1, str, l);
-				tputs(save_cursor, 1 ,ft_putchar);
 			}
+			else if (*str == '\n')
+				write (1, "\n", 1);
 		}while (strcmp(str,"\n") && strcmp(str, "\4"));
 	}
 	write (1, "\n", 1);
