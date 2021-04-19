@@ -1,6 +1,7 @@
 #include <curses.h>
 #include <term.h>
 #include <termios.h>
+#include <sys/ioctl.h>
 
 # include <unistd.h>
 # include <stdio.h>
@@ -116,6 +117,18 @@ int	set_histo(int id, char line[2000])
 	return (ft_strlen(line));
 }
 
+static void	term_get_size(int *cols, int *rows)
+{
+	struct winsize ws;
+
+	if (ioctl(0, TIOCGWINSZ, &ws) == 0) {
+		*cols = ws.ws_col;
+		*rows = ws.ws_row;
+	} else
+		*cols = *rows = -1;
+}
+
+
 int	main(void)
 {
 	char	str[2000];
@@ -197,8 +210,13 @@ int	main(void)
 			{
 				if (i > 0)
 				{
-					col = tgetnum("co");
-					if (((prompt_len + i) % col) == 0)
+					int cols;
+					int rows;
+
+					term_get_size(&cols, &rows);
+					//printf("cols = %d\nrows = %d\n", cols, rows);
+					//col = tgetnum("co");
+					if (((prompt_len + i) % cols) == 0)
 					{
 						tputs(tigetstr("bw"), 1, ft_putchar);
 						tputs(tigetstr("le"), 1, ft_putchar);
@@ -254,9 +272,10 @@ int	main(void)
 				if (i == 0)
 				{
 					//Exit here
-					break;
+					printf("exit\n");
+					exit (0);
 				}
-				//printf ("Ctrl D\n");
+				printf ("Ctrl D\n");
 			}
 			else if (*str == '\n')
 			{
