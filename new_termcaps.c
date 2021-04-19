@@ -132,7 +132,6 @@ int	main(void)
 	tcgetattr(0, &term);
 	term.c_lflag &= ~(ECHO);
 	term.c_lflag &= ~(ICANON);
-	term.c_lflag &= ~(CDSR_OFLOW);
 
 	tcsetattr(0, TCSANOW, &term);
 	tgetent(0, term_name);
@@ -199,7 +198,7 @@ int	main(void)
 				if (i > 0)
 				{
 					col = tgetnum("co");
-					if (prompt_len + i == col)
+					if (((prompt_len + i) % col) == 0)
 					{
 						tputs(tigetstr("bw"), 1, ft_putchar);
 						tputs(tigetstr("le"), 1, ft_putchar);
@@ -220,7 +219,16 @@ int	main(void)
 					//tputs(tigetstr("bw"), 1, ft_putchar);
 					ft_putchar(' ');
 					//ft_putchar(' ');
-					write (1, "^[[6n", 5);
+					/*
+					char cmd_term;
+					cmd_term = 0x1b;
+					write(1, &cmd_term, 1);
+					write (1, "[6n", 3);
+					char test[10];
+					read(1, test, 10);
+					write(2, test, 10);
+					//write (1, "\033[6n", 4);
+					*/
 					tputs(cursor_left, 1, ft_putchar);
 					}
 					line[i] = '\0';
