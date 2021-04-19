@@ -95,10 +95,33 @@ void	ft_clear_line(int col)
 	}
 }
 
+int	set_histo(int id, char line[2000])
+{
+	if (id == 0)
+	{
+		line[0] = 'n';
+		line[1] = 'e';
+		line[2] = 'x';
+		line[3] = 't';
+		line[4] = '\0';
+	}
+	else if (id == 1)
+	{
+		line[0] = 'p';
+		line[1] = 'r';
+		line[2] = 'e';
+		line[3] = 'v';
+		line[4] = '\0';
+	}
+	return (ft_strlen(line));
+}
+
 int	main(void)
 {
 	char	str[2000];
-	char	*strtest;
+	char	line[2000];
+	int		i = 0;
+	//char	*strtest;
 	int		l;
 	struct termios	term;
 	char	*term_name = "xterm-256color";
@@ -112,12 +135,21 @@ int	main(void)
 	tcsetattr(0, TCSANOW, &term);
 	tgetent(0, term_name);
 
-	char	*strbackup;
+	//char	*strbackup;
 	char *reset_cmd = tgetstr("me", NULL);
 	col = tgetnum("co");
 
-	strtest = malloc(sizeof(char));
-	strtest[0] = '\0';
+	tputs(tigetstr("cl"), 1, ft_putchar);
+
+	//strtest = malloc(sizeof(char));
+	//strtest[0] = '\0';
+	line[0] = '\0';
+	write (1, "Prompt : ", 9);
+
+	// Si la str est VIDE on ne peut pas continuer à erase. Si la str + le prompt
+	// est plus long que le nombre de col du terminal alors il faut remonter
+	// d'une ligne (dans le cas d'un backspace ou d'un next / prev)
+
 	while (42)
 	{
 		tputs(tigetstr("dm"), 1, ft_putchar);
@@ -131,8 +163,9 @@ int	main(void)
 				tputs(tigetstr("ed"), 1, ft_putchar);
 				tputs(tigetstr("DC"), 1, ft_putchar);
 				//tputs(tigetstr("ce"), 1, ft_putchar);
-
+				write (1, "Prompt : ", 9);
 				write (1, "prev", 4);//Ecrire la ligne de l'histo
+				i = set_histo(1, line);
 			}
 			else if (!strcmp(str, "\e[B"))
 			{
@@ -142,37 +175,67 @@ int	main(void)
 				//ft_clear_line (col);
 				//tputs(tigetstr("cr"), 1, ft_putchar);
 				//tputs(tigetstr("ce"), 1, ft_putchar);
-
+				write (1, "Prompt : ", 9);
 				write (1, "next", 4);
+				i = set_histo(0, line);
 			}
-			/*
+
 			else if (!strcmp(str, "\e[D"))
-				tputs(cursor_left, 1, ft_putchar);
+			{
+				tputs(tigetstr("sf"), 1, ft_putchar);
+				//tputs(cursor_left, 1, ft_putchar);
+			}
+/*
 			else if (!strcmp(str, "\e[C"))
+			{
+				//tputs(tigetstr("kI"), 1, ft_putchar);
 				tputs(cursor_right, 1, ft_putchar);
-			*/
+			}
+*/
 			else if (*str == 127)
 			{
-				//strtest = ft_remove_last_char(strtest);
-				tputs(cursor_left, 1, ft_putchar);
-				tputs(tigetstr("ed"), 1, ft_putchar);
-				//tputs(tigetstr("ll"), 1, ft_putchar);
-				//write(1, "back", 4);
-				//write (1, strtest, ft_strlen(strtest));
+				if (i > 0)
+				{
+					//strtest = ft_remove_last_char(strtest);
+					tputs(cursor_left, 1, ft_putchar);
+					tputs(tigetstr("ed"), 1, ft_putchar);
+					line[i] = '\0';
+					i--;
+					//tputs(tigetstr("ll"), 1, ft_putchar);
+					//write(1, "back", 4);
+					//write (1, strtest, ft_strlen(strtest));
+				}
+				else
+					tputs(tigetstr("bl"), 1, ft_putchar);
 			}
 			else if (*str >= 32 && *str <= 126)
 			{
 				//strbackup = ft_strcpy(str);
 				//strtest = ft_strjoin(strtest, str);
 				write(1, str, 1);
+				line[i] = str[0];
+				i++;
 			}
 			else if (!strcmp(str, "\4"))
 			{
 				write (1, "", 0);
+				if (i == 0)
+				{
+					//Exit here
+					break;
+				}
 				//printf ("Ctrl D\n");
 			}
 			else if (*str == '\n')
+			{
 				write (1, "\n", 1);
+				line[i] = '\0';
+				printf("line = %s\n", line);
+				//Send line to treat line HERE
+				write (1, "Prompt : ", 9);
+				i = 0;
+				line[i] = '\0';
+			}
 		}while (strcmp(str,"\n") && strcmp(str, "\4"));
 	}
 	write (1, "\n", 1);
