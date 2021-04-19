@@ -127,10 +127,12 @@ int	main(void)
 	char	*term_name = "xterm-256color";
 	char	*cm_cap = tgetstr("cm", NULL);
 	int		col;
+	int		prompt_len = 9;
 
 	tcgetattr(0, &term);
 	term.c_lflag &= ~(ECHO);
 	term.c_lflag &= ~(ICANON);
+	term.c_lflag &= ~(CDSR_OFLOW);
 
 	tcsetattr(0, TCSANOW, &term);
 	tgetent(0, term_name);
@@ -196,9 +198,31 @@ int	main(void)
 			{
 				if (i > 0)
 				{
+					col = tgetnum("co");
+					if (prompt_len + i == col)
+					{
+						tputs(tigetstr("bw"), 1, ft_putchar);
+						tputs(tigetstr("le"), 1, ft_putchar);
+						tputs(cursor_left, 1, ft_putchar);
+						ft_putchar(' ');
+						//tputs(cursor_left, 1, ft_putchar);
+					}
 					//strtest = ft_remove_last_char(strtest);
+					//tputs(cursor_left, 1, ft_putchar);
+					//tputs(tigetstr("ed"), 1, ft_putchar);
+					//write (1, " ", 1);
+					//ft_putchar(' ');
+					else
+					{
+					tputs(tigetstr("le"), 1, ft_putchar);
+					//ft_putchar(' ');
 					tputs(cursor_left, 1, ft_putchar);
-					tputs(tigetstr("ed"), 1, ft_putchar);
+					//tputs(tigetstr("bw"), 1, ft_putchar);
+					ft_putchar(' ');
+					//ft_putchar(' ');
+					write (1, "^[[6n", 5);
+					tputs(cursor_left, 1, ft_putchar);
+					}
 					line[i] = '\0';
 					i--;
 					//tputs(tigetstr("ll"), 1, ft_putchar);
