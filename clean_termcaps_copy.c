@@ -113,23 +113,8 @@ int	ft_manage_history(t_termcaps *s, int id)
 	return (set_histo(id, s->line));
 }
 
-int	main (void)
+void	ft_get_line(t_termcaps *s)
 {
-	t_termcaps	*s;
-
-	s = malloc(sizeof(t_termcaps));
-	memset(s, 0, sizeof(t_termcaps)); // FT_MEMESET
-	s->term_name = getenv("TERM");
-	tcgetattr(0, &(s->term));
-	(s->term).c_lflag &= ~(ECHO);
-	(s->term).c_lflag &= ~(ICANON);
-	s->prompt_len = 9;
-	tcsetattr(0, TCSANOW, &(s->term));
-	tgetent(0, s->term_name);
-	s->line[0] = '\0';
-	s->i = 0;
-	write (1, "Prompt : ", 9);
-	tputs(tigetstr("dm"), 1, ft_putchar);
 	while (42)
 	{
 		s->l = read(0, s->str, 16);
@@ -163,11 +148,52 @@ int	main (void)
 			printf("line = %s\n", s->line);
 			//Send line to treat line HERE
 			write (1, "Prompt : ", 9);
-			s->i = 0;
-			s->line[s->i] = '\0';
+			//s->i = 0;
+			//s->line[s->i] = '\0';
+			break;
 		}
 	}
-	write (1, "\n", 1);
-	tputs(save_cursor, 1 ,ft_putchar);
-	tputs(tigetstr("me"), 1, putchar);
+}
+
+char	*ft_copy_line(t_termcaps *s)
+{
+	int		len;
+	int		i;
+	char	*result;
+
+	i = 0;
+	len = s->i;
+	if (len == 0)
+		return (NULL);
+	result = malloc(sizeof(char) * len + 1);
+	result[len] = '\0';
+	while (i < len)
+	{
+		result[i] = s->line[i];
+		i++;
+	}
+	return (result);
+}
+
+int	main (void)
+{
+	t_termcaps	*s;
+	char		*line;
+
+	s = malloc(sizeof(t_termcaps));
+	memset(s, 0, sizeof(t_termcaps)); // FT_MEMESET
+	s->term_name = getenv("TERM");
+	tcgetattr(0, &(s->term));
+	(s->term).c_lflag &= ~(ECHO);
+	(s->term).c_lflag &= ~(ICANON);
+	s->prompt_len = 9;
+	tcsetattr(0, TCSANOW, &(s->term));
+	tgetent(0, s->term_name);
+	s->line[0] = '\0';
+	s->i = 0;
+	write (1, "Prompt : ", 9);
+	tputs(tigetstr("dm"), 1, ft_putchar);
+	ft_get_line(s);
+	line = ft_copy_line(s);
+	printf ("final line = %s\n", line);
 }
