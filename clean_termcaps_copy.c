@@ -116,7 +116,6 @@ int	ft_manage_history(t_termcaps *s, int id)
 int	main (void)
 {
 	t_termcaps	*s;
-	char		str[2000];
 
 	s = malloc(sizeof(t_termcaps));
 	memset(s, 0, sizeof(t_termcaps)); // FT_MEMESET
@@ -129,51 +128,44 @@ int	main (void)
 	tgetent(0, s->term_name);
 	s->line[0] = '\0';
 	s->i = 0;
-	printf_term(s->term);
 	write (1, "Prompt : ", 9);
+	tputs(tigetstr("dm"), 1, ft_putchar);
 	while (42)
 	{
-		tputs(tigetstr("dm"), 1, ft_putchar);
-		do
+		s->l = read(0, s->str, 16);
+		if (!strcmp(s->str, "\e[A"))
+			s->i = ft_manage_history(s, 1);
+		else if (!strcmp(s->str, "\e[B"))
+			s->i = ft_manage_history(s, 0);
+		else if (*(s->str) == 127)
 		{
-			s->l = read(0, str, 100);
-			if (!strcmp(str, "\e[A"))
-				s->i = ft_manage_history(s, 1);
-			else if (!strcmp(str, "\e[B"))
-				s->i = ft_manage_history(s, 0);
-
-			else if (*str == 127)
+			s->i = ft_delete_character(s);
+		}
+		else if (*(s->str) >= 32 && *(s->str) <= 126)
+		{
+			write(1, s->str, 1);
+			s->line[s->i] = s->str[0];
+			s->i++;
+		}
+		else if (*(s->str) == 4)
+		{
+			if (s->i == 0)
 			{
-				s->i = ft_delete_character(s);
+				//Exit here
+				printf("exit\n");
+				exit (0);
 			}
-			else if (*str >= 32 && *str <= 126)
-			{
-				write(1, str, 1);
-				s->line[s->i] = str[0];
-				s->i++;
-			}
-			else if (!strcmp(str, "\4"))
-			{
-				//write (1, "", 0);
-				if (s->i == 0)
-				{
-					//Exit here
-					printf("exit\n");
-					exit (0);
-				}
-				printf ("Ctrl D\n");
-			}
-			else if (*str == '\n')
-			{
-				write (1, "\n", 1);
-				s->line[s->i] = '\0';
-				printf("line = %s\n", s->line);
-				//Send line to treat line HERE
-				write (1, "Prompt : ", 9);
-				s->i = 0;
-				s->line[s->i] = '\0';
-			}
-		}while (strcmp(str,"\n") && strcmp(str, "\4"));
+		}
+		else if (*(s->str) == '\n')
+		{
+			write (1, "\n", 1);
+			s->line[s->i] = '\0';
+			printf("line = %s\n", s->line);
+			//Send line to treat line HERE
+			write (1, "Prompt : ", 9);
+			s->i = 0;
+			s->line[s->i] = '\0';
+		}
 	}
 	write (1, "\n", 1);
 	tputs(save_cursor, 1 ,ft_putchar);

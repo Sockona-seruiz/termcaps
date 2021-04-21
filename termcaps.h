@@ -13,8 +13,8 @@
 
 typedef struct		s_termcaps
 {
-	char			str[2000];
-	char			line[2000];
+	char			str[16];
+	char			line[2048];
 	int				i;
 	int				l;
 	int				col;

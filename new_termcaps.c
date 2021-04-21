@@ -128,6 +128,16 @@ static void	term_get_size(int *cols, int *rows)
 		*cols = *rows = -1;
 }
 
+void printf_term(struct termios term)
+{
+	printf("%s\n", term.c_cc);
+	printf("%lu\n", term.c_cflag);
+	printf("%lu\n", term.c_iflag);
+	printf("%lu\n", term.c_ispeed);
+	printf("%lu\n", term.c_lflag);
+	printf("%lu\n", term.c_oflag);
+	printf("%lu\n", term.c_ospeed);
+}
 
 int	main(void)
 {
@@ -137,7 +147,8 @@ int	main(void)
 	//char	*strtest;
 	int		l;
 	struct termios	term;
-	char	*term_name = "xterm-256color";
+	char	*term_name = getenv("TERM");
+	printf("termname = %s\n", term_name);
 	char	*cm_cap = tgetstr("cm", NULL);
 	int		col;
 	int		prompt_len = 9;
@@ -154,9 +165,7 @@ int	main(void)
 	col = tgetnum("co");
 
 	tputs(tigetstr("cl"), 1, ft_putchar);
-
-	//strtest = malloc(sizeof(char));
-	//strtest[0] = '\0';
+	printf_term(term);
 	line[0] = '\0';
 	write (1, "Prompt : ", 9);
 
@@ -193,13 +202,13 @@ int	main(void)
 				write (1, "next", 4);
 				i = set_histo(0, line);
 			}
-
+/*
 			else if (!strcmp(str, "\e[D"))
 			{
 				tputs(tigetstr("sf"), 1, ft_putchar);
 				//tputs(cursor_left, 1, ft_putchar);
 			}
-/*
+
 			else if (!strcmp(str, "\e[C"))
 			{
 				//tputs(tigetstr("kI"), 1, ft_putchar);
@@ -214,46 +223,21 @@ int	main(void)
 					int rows;
 
 					term_get_size(&cols, &rows);
-					//printf("cols = %d\nrows = %d\n", cols, rows);
-					//col = tgetnum("co");
 					if (((prompt_len + i) % cols) == 0)
 					{
 						tputs(tigetstr("bw"), 1, ft_putchar);
-						tputs(tigetstr("le"), 1, ft_putchar);
 						tputs(cursor_left, 1, ft_putchar);
 						ft_putchar(' ');
-						//tputs(cursor_left, 1, ft_putchar);
 					}
-					//strtest = ft_remove_last_char(strtest);
-					//tputs(cursor_left, 1, ft_putchar);
-					//tputs(tigetstr("ed"), 1, ft_putchar);
-					//write (1, " ", 1);
-					//ft_putchar(' ');
 					else
 					{
 					tputs(tigetstr("le"), 1, ft_putchar);
-					//ft_putchar(' ');
 					tputs(cursor_left, 1, ft_putchar);
-					//tputs(tigetstr("bw"), 1, ft_putchar);
 					ft_putchar(' ');
-					//ft_putchar(' ');
-					/*
-					char cmd_term;
-					cmd_term = 0x1b;
-					write(1, &cmd_term, 1);
-					write (1, "[6n", 3);
-					char test[10];
-					read(1, test, 10);
-					write(2, test, 10);
-					//write (1, "\033[6n", 4);
-					*/
 					tputs(cursor_left, 1, ft_putchar);
 					}
 					line[i] = '\0';
 					i--;
-					//tputs(tigetstr("ll"), 1, ft_putchar);
-					//write(1, "back", 4);
-					//write (1, strtest, ft_strlen(strtest));
 				}
 				else
 					tputs(tigetstr("bl"), 1, ft_putchar);
